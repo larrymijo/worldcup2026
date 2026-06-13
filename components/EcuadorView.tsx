@@ -1,14 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
-import {
-  formatLocalDateLong,
-  formatLocalTime,
-  getLocalTimeZone,
-  getMatchStatus,
-} from "@/lib/time";
+import { formatLocalDateLong, formatLocalTime, getMatchStatus } from "@/lib/time";
 import { stageLabel } from "@/lib/i18n";
 import { MatchCard } from "./MatchCard";
 import { Countdown } from "./Countdown";
@@ -28,8 +22,6 @@ export function EcuadorView() {
   const { t, locale } = useI18n();
   const { matches, loading, error } = useMatches();
   const now = useNow();
-  const [tz, setTz] = useState<string | null>(null);
-  useEffect(() => setTz(getLocalTimeZone()), []);
 
   const ecuador = matches
     .filter((m) => m.home === "Ecuador" || m.away === "Ecuador")
@@ -61,7 +53,7 @@ export function EcuadorView() {
                 {t("ec.titleLine2")}
               </h1>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-muted sm:text-base">
-                {t("ec.subtitle", { tz: tz ? ` (${tz})` : "" })}
+                {t("ec.subtitle")}
               </p>
               <div className="mt-5">
                 <OrganiskBadge labelKey="sponsor.officialSponsor" />

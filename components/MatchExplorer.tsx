@@ -1,14 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
-import {
-  formatLocalDateLong,
-  getLocalTimeZone,
-  getMatchStatus,
-  groupByLocalDate,
-} from "@/lib/time";
+import { formatLocalDateLong, getMatchStatus, groupByLocalDate } from "@/lib/time";
 import { MatchCard } from "./MatchCard";
 import { useMatches, useNow } from "./useMatches";
 import { useI18n } from "./I18nProvider";
@@ -32,9 +27,6 @@ export function MatchExplorer() {
   const [group, setGroup] = useState("all");
   const [stage, setStage] = useState<StageFilter>("all");
   const [onlyUpcoming, setOnlyUpcoming] = useState(false);
-  const [tz, setTz] = useState<string | null>(null);
-
-  useEffect(() => setTz(getLocalTimeZone()), []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -130,15 +122,13 @@ export function MatchExplorer() {
                   n: filtered.length,
                 })}
           </span>
-          {tz && (
-            <span className="inline-flex items-center gap-1.5">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
-                <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-              {t("filters.yourTime", { tz })}
-            </span>
-          )}
+          <span className="inline-flex items-center gap-1.5">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+            {t("filters.yourTime")}
+          </span>
         </div>
       </div>
 
