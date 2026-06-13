@@ -16,8 +16,8 @@ export function getLocalTimeZone(): string {
 }
 
 /** "7:00 PM" style local kick-off time, with timezone abbreviation. */
-export function formatLocalTime(iso: string): string {
-  return new Intl.DateTimeFormat(undefined, {
+export function formatLocalTime(iso: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "2-digit",
     timeZoneName: "short",
@@ -25,8 +25,8 @@ export function formatLocalTime(iso: string): string {
 }
 
 /** "Sun, Jun 14" style local date. */
-export function formatLocalDate(iso: string): string {
-  return new Intl.DateTimeFormat(undefined, {
+export function formatLocalDate(iso: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -34,8 +34,8 @@ export function formatLocalDate(iso: string): string {
 }
 
 /** "Sunday, June 14, 2026" — used for date section headers. */
-export function formatLocalDateLong(iso: string): string {
-  return new Intl.DateTimeFormat(undefined, {
+export function formatLocalDateLong(iso: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale, {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -76,13 +76,13 @@ export function msUntil(iso: string, now: number = Date.now()): number {
   return new Date(iso).getTime() - now;
 }
 
-/** Short "in 1d 11h" / "in 3h 20m" / "in 12m" relative string for upcoming matches. */
+/** Short "1d 11h" / "3h 20m" / "12m" relative string (no prefix). */
 export function formatRelative(ms: number): string {
-  if (ms <= 0) return "now";
+  if (ms <= 0) return "";
   const { days, hours, minutes } = countdownParts(ms);
-  if (days > 0) return `in ${days}d ${hours}h`;
-  if (hours > 0) return `in ${hours}h ${minutes}m`;
-  return `in ${minutes}m`;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
 }
 
 /** Break a millisecond duration into d/h/m/s parts. */

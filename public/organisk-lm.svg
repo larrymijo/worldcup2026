@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Organisk LM">
+  <!-- soil ring (the "O") -->
+  <circle cx="100" cy="114" r="46" fill="none" stroke="#6f4d25" stroke-width="28" />
+  <!-- sprout stem rising through the ring -->
+  <path d="M110 64 C 95 92, 88 122, 100 158"
+        fill="none" stroke="#79bf43" stroke-width="9"
+        stroke-linecap="round" stroke-linejoin="round" />
+  <!-- left leaf (large) -->
+  <g transform="translate(99,72) rotate(210)" fill="#8ccb55">
+    <path d="M0 0 C 13 -12 34 -12 47 0 C 34 12 13 12 0 0 Z" />
+  </g>
+  <!-- right leaf (small) -->
+  <g transform="translate(111,58) rotate(308)" fill="#79bf43">
+    <path d="M0 0 C 10 -9 27 -9 37 0 C 27 9 10 9 0 0 Z" />
+  </g>
+</svg>

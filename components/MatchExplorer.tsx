@@ -11,6 +11,7 @@ import {
 } from "@/lib/time";
 import { MatchCard } from "./MatchCard";
 import { useMatches, useNow } from "./useMatches";
+import { useI18n } from "./I18nProvider";
 
 type StageFilter = "all" | "group" | "knockout";
 
@@ -23,6 +24,7 @@ function searchText(m: Match): string {
 }
 
 export function MatchExplorer() {
+  const { t, locale } = useI18n();
   const { matches, loading, error } = useMatches();
   const now = useNow();
 
@@ -67,7 +69,7 @@ export function MatchExplorer() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search team, city or stadium…"
+              placeholder={t("filters.search")}
               className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-ink placeholder:text-muted focus:border-pitch/50 focus:outline-none focus:ring-2 focus:ring-pitch/20"
             />
           </div>
@@ -76,9 +78,9 @@ export function MatchExplorer() {
             {/* Stage segmented control */}
             <div className="flex rounded-xl border border-white/10 bg-white/5 p-1">
               {([
-                ["all", "All"],
-                ["group", "Groups"],
-                ["knockout", "Knockouts"],
+                ["all", t("filters.all")],
+                ["group", t("filters.groups")],
+                ["knockout", t("filters.knockouts")],
               ] as [StageFilter, string][]).map(([value, label]) => (
                 <button
                   key={value}
@@ -98,10 +100,10 @@ export function MatchExplorer() {
               onChange={(e) => setGroup(e.target.value)}
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-ink focus:border-pitch/50 focus:outline-none"
             >
-              <option value="all" className="bg-night">All groups</option>
+              <option value="all" className="bg-night">{t("filters.allGroups")}</option>
               {GROUPS.map((g) => (
                 <option key={g} value={g} className="bg-night">
-                  Group {g}
+                  {t("stage.group")} {g}
                 </option>
               ))}
             </select>
@@ -115,14 +117,18 @@ export function MatchExplorer() {
                   : "border-white/10 bg-white/5 text-muted hover:text-ink"
               }`}
             >
-              Upcoming only
+              {t("filters.upcomingOnly")}
             </button>
           </div>
         </div>
 
         <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted">
           <span>
-            {loading ? "Loading fixtures…" : `${filtered.length} match${filtered.length === 1 ? "" : "es"}`}
+            {loading
+              ? t("filters.loading")
+              : t(filtered.length === 1 ? "filters.countOne" : "filters.countOther", {
+                  n: filtered.length,
+                })}
           </span>
           {tz && (
             <span className="inline-flex items-center gap-1.5">
@@ -130,7 +136,7 @@ export function MatchExplorer() {
                 <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
                 <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
               </svg>
-              Your time · {tz}
+              {t("filters.yourTime", { tz })}
             </span>
           )}
         </div>
@@ -139,7 +145,7 @@ export function MatchExplorer() {
       {/* States */}
       {error && (
         <div className="rounded-2xl border border-ec-red/30 bg-ec-red/10 p-6 text-center text-sm text-red-200">
-          Couldn&apos;t load the schedule: {error}
+          {t("error.schedule", { error })}
         </div>
       )}
 
@@ -147,8 +153,8 @@ export function MatchExplorer() {
 
       {!loading && !error && filtered.length === 0 && (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-muted">
-          <p className="font-display text-lg text-ink">No matches found</p>
-          <p className="mt-1 text-sm">Try clearing the search or filters.</p>
+          <p className="font-display text-lg text-ink">{t("empty.title")}</p>
+          <p className="mt-1 text-sm">{t("empty.desc")}</p>
         </div>
       )}
 
@@ -158,7 +164,7 @@ export function MatchExplorer() {
           <div key={day.key} className="animate-in">
             <div className="mb-3 flex items-center gap-3">
               <h2 className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-ink">
-                {formatLocalDateLong(day.iso)}
+                {formatLocalDateLong(day.iso, locale)}
               </h2>
               <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-muted">
                 {day.matches.length}

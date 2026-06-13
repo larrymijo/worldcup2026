@@ -11,7 +11,10 @@ import {
   type Round,
 } from "@/lib/bracket";
 import { TEAMS } from "@/lib/teams";
+import { stageLabel } from "@/lib/i18n";
 import { TeamFlag } from "./TeamFlag";
+import { OrganiskBadge } from "./Sponsor";
+import { useI18n } from "./I18nProvider";
 
 const STORAGE_KEY = "wc2026-prediction-v1";
 const name = (t?: string) => (t ? (TEAMS[t]?.name ?? t) : "—");
@@ -23,29 +26,13 @@ interface Saved {
 }
 
 export function Predictor() {
+  const { t } = useI18n();
   const [groupPicks, setGroupPicks] = useState<Record<string, string[]>>({});
   const [thirds, setThirds] = useState<string[]>([]);
   const [winners, setWinners] = useState<Record<number, string>>({});
   const loaded = useRef(false);
 
-  // Load saved prediction once on mount.
   useEffect(() => {
-    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1") {
-      const gp: Record<string, string[]> = {};
-      for (const g of GROUP_LETTERS) gp[g] = [GROUPS[g][0], GROUPS[g][1]];
-      const th = GROUP_LETTERS.slice(0, 8).map((g) => GROUPS[g][2]);
-      const w: Record<number, string> = {};
-      for (const m of BRACKET) {
-        const r = resolveBracket({ groupPicks: gp, thirds: th, winners: w }).matches[m.id];
-        if (r.a) w[m.id] = r.a;
-      }
-      for (const id of [2, 17, 25, 29, 31]) w[id] = "Brazil";
-      setGroupPicks(gp);
-      setThirds(th);
-      setWinners(w);
-      loaded.current = true;
-      return;
-    }
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
@@ -60,7 +47,6 @@ export function Predictor() {
     loaded.current = true;
   }, []);
 
-  // Persist after load.
   useEffect(() => {
     if (!loaded.current) return;
     try {
@@ -72,11 +58,11 @@ export function Predictor() {
 
   // Drop wildcard thirds that are no longer valid (group changed / now advancing).
   useEffect(() => {
-    const valid = thirds.filter((t) => {
-      const g = groupOf(t);
+    const valid = thirds.filter((team) => {
+      const g = groupOf(team);
       if (!g) return false;
       const picks = groupPicks[g] ?? [];
-      return picks.length === 2 && !picks.includes(t);
+      return picks.length === 2 && !picks.includes(team);
     });
     if (valid.length !== thirds.length) setThirds(valid);
   }, [groupPicks, thirds]);
@@ -112,8 +98,8 @@ export function Predictor() {
   function toggleThird(team: string) {
     const g = groupOf(team);
     setThirds((prev) => {
-      if (prev.includes(team)) return prev.filter((t) => t !== team);
-      const withoutGroup = prev.filter((t) => groupOf(t) !== g);
+      if (prev.includes(team)) return prev.filter((x) => x !== team);
+      const withoutGroup = prev.filter((x) => groupOf(x) !== g);
       if (withoutGroup.length >= 8) return prev;
       return [...withoutGroup, team];
     });
@@ -145,25 +131,27 @@ export function Predictor() {
         </div>
         <div className="relative">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-            🔮 Bracket Challenge
+            🔮 {t("pr.badge")}
           </span>
           <h1 className="mt-4 font-display text-[2.4rem] font-bold leading-[1.05] xs:text-5xl sm:text-6xl">
-            Predict the <span className="text-gradient">bracket</span>
+            {t("pr.titlePre")}
+            <span className="text-gradient">{t("pr.titleHl")}</span>
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
-            Call the group winners, pick your wildcard underdogs, then click your
-            way through every knockout round to crown a champion. Your picks save
-            automatically in this browser.
+            {t("pr.subtitle")}
           </p>
+          <div className="mt-6">
+            <OrganiskBadge labelKey="sponsor.presentedBy" size="lg" />
+          </div>
         </div>
       </section>
 
       {/* Progress */}
       <div className="glass z-30 mt-6 mb-8 flex flex-wrap items-center gap-2 rounded-2xl px-3 py-2.5 text-xs sm:sticky sm:top-16 sm:gap-3 sm:px-4">
-        <ProgressChip label="Groups" value={`${completeGroups.length}/12`} done={groupsDone} href="#step-groups" />
-        <ProgressChip label="Wildcards" value={`${thirds.length}/8`} done={thirdsDone} href="#step-wildcards" />
+        <ProgressChip label={t("pr.groups")} value={`${completeGroups.length}/12`} done={groupsDone} href="#step-groups" />
+        <ProgressChip label={t("pr.wildcards")} value={`${thirds.length}/8`} done={thirdsDone} href="#step-wildcards" />
         <ProgressChip
-          label="Champion"
+          label={t("pr.champion")}
           value={champion ? name(champion) : "—"}
           done={!!champion}
           href="#step-bracket"
@@ -173,7 +161,7 @@ export function Predictor() {
           onClick={reset}
           className="ml-auto rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 font-semibold text-muted transition hover:border-ec-red/40 hover:text-red-300"
         >
-          Reset
+          {t("pr.reset")}
         </button>
       </div>
 
@@ -181,24 +169,19 @@ export function Predictor() {
       {champion && <ChampionBanner team={champion} />}
 
       {/* Step 1 — Groups */}
-      <StepHeader id="step-groups" n={1} title="Group stage" hint="Tap two teams in each group to set 1st & 2nd place." />
+      <StepHeader id="step-groups" n={1} title={t("pr.step1")} hint={t("pr.step1hint")} />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {GROUP_LETTERS.map((g) => (
-          <GroupCard key={g} letter={g} picks={groupPicks[g] ?? []} onToggle={(t) => toggleGroupPick(g, t)} />
+          <GroupCard key={g} letter={g} picks={groupPicks[g] ?? []} onToggle={(team) => toggleGroupPick(g, team)} />
         ))}
       </div>
 
       {/* Step 2 — Wildcards */}
-      <StepHeader
-        id="step-wildcards"
-        n={2}
-        title="Wildcard third-place teams"
-        hint="Choose 8 of the best third-placed teams (max one per group) to complete the 32."
-      />
+      <StepHeader id="step-wildcards" n={2} title={t("pr.step2")} hint={t("pr.step2hint")} />
       <WildcardPicker groupPicks={groupPicks} thirds={thirds} onToggle={toggleThird} />
 
       {/* Step 3 — Bracket */}
-      <StepHeader id="step-bracket" n={3} title="Knockout bracket" hint="Tap the team you think advances in each match — winners flow to the next round." />
+      <StepHeader id="step-bracket" n={3} title={t("pr.step3")} hint={t("pr.step3hint")} />
       {bracketReady ? (
         <BracketView matches={resolved.matches} onPick={pickWinner} />
       ) : (
@@ -227,9 +210,7 @@ function ProgressChip({
     <a
       href={href}
       className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-semibold transition ${
-        done
-          ? "border-pitch/40 bg-pitch/10 text-pitch"
-          : "border-white/10 bg-white/5 text-muted hover:text-ink"
+        done ? "border-pitch/40 bg-pitch/10 text-pitch" : "border-white/10 bg-white/5 text-muted hover:text-ink"
       }`}
     >
       {flag && <TeamFlag team={flag} size={18} />}
@@ -263,18 +244,21 @@ function GroupCard({
   picks: string[];
   onToggle: (team: string) => void;
 }) {
+  const { t } = useI18n();
   const complete = picks.length === 2;
   return (
     <div className={`glass rounded-2xl p-3 ${complete ? "ring-1 ring-pitch/30" : ""}`}>
       <div className="mb-2 flex items-center justify-between px-1">
-        <span className="font-display text-sm font-bold tracking-wider text-ink">Group {letter}</span>
+        <span className="font-display text-sm font-bold tracking-wider text-ink">
+          {t("stage.group")} {letter}
+        </span>
         <span className={`text-[10px] font-semibold uppercase tracking-wider ${complete ? "text-pitch" : "text-muted"}`}>
-          {complete ? "✓ set" : `pick ${2 - picks.length} more`}
+          {complete ? `✓ ${t("pr.set")}` : t("pr.pickMore", { n: 2 - picks.length })}
         </span>
       </div>
       <div className="space-y-1.5">
         {GROUPS[letter].map((team) => {
-          const rank = picks.indexOf(team); // -1, 0, or 1
+          const rank = picks.indexOf(team);
           const selected = rank >= 0;
           return (
             <button
@@ -302,8 +286,7 @@ function GroupCard({
 }
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank < 0)
-    return <span className="h-5 w-5 rounded-full border border-dashed border-white/15" />;
+  if (rank < 0) return <span className="h-5 w-5 rounded-full border border-dashed border-white/15" />;
   const isFirst = rank === 0;
   return (
     <span
@@ -325,11 +308,12 @@ function WildcardPicker({
   thirds: string[];
   onToggle: (team: string) => void;
 }) {
+  const { t } = useI18n();
   const ready = GROUP_LETTERS.filter((g) => (groupPicks[g]?.length ?? 0) === 2);
   if (ready.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center text-sm text-muted">
-        Set the group winners above first — then the third-place contenders appear here.
+        {t("pr.wildcardsHint")}
       </div>
     );
   }
@@ -337,11 +321,11 @@ function WildcardPicker({
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {ready.map((g) => {
-        const leftovers = GROUPS[g].filter((t) => !(groupPicks[g] ?? []).includes(t));
+        const leftovers = GROUPS[g].filter((tm) => !(groupPicks[g] ?? []).includes(tm));
         return (
           <div key={g} className="glass rounded-2xl p-3">
             <div className="mb-2 px-1 font-display text-xs font-bold tracking-wider text-muted">
-              Group {g} · 3rd place
+              {t("stage.group")} {g} · {t("pr.thirdPlace")}
             </div>
             <div className="flex flex-col gap-1.5">
               {leftovers.map((team) => {
@@ -385,19 +369,18 @@ function LockedBracket({
   groupsCount: number;
   thirdsCount: number;
 }) {
+  const { t } = useI18n();
   return (
     <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-10 text-center">
       <div className="text-3xl">🔒</div>
-      <p className="mt-3 font-display text-lg text-ink">Bracket locked</p>
-      <p className="mt-1 text-sm text-muted">
-        Finish the setup to unlock the knockout rounds:
-      </p>
+      <p className="mt-3 font-display text-lg text-ink">{t("pr.locked")}</p>
+      <p className="mt-1 text-sm text-muted">{t("pr.lockedDesc")}</p>
       <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">
         <span className={`rounded-full px-3 py-1.5 ${groupsDone ? "bg-pitch/15 text-pitch" : "bg-white/5 text-muted"}`}>
-          {groupsDone ? "✓" : "•"} Groups {groupsCount}/12
+          {groupsDone ? "✓" : "•"} {t("pr.groups")} {groupsCount}/12
         </span>
         <span className={`rounded-full px-3 py-1.5 ${thirdsCount === 8 ? "bg-pitch/15 text-pitch" : "bg-white/5 text-muted"}`}>
-          {thirdsCount === 8 ? "✓" : "•"} Wildcards {thirdsCount}/8
+          {thirdsCount === 8 ? "✓" : "•"} {t("pr.wildcards")} {thirdsCount}/8
         </span>
       </div>
     </div>
@@ -411,17 +394,17 @@ function BracketView({
   matches: Record<number, ResolvedMatch>;
   onPick: (id: number, team?: string) => void;
 }) {
-  const byRound = (r: Round) =>
-    BRACKET.filter((m) => m.round === r).map((m) => matches[m.id]);
+  const { t } = useI18n();
+  const byRound = (r: Round) => BRACKET.filter((m) => m.round === r).map((m) => matches[m.id]);
 
   return (
     <div>
-      <p className="mb-3 text-xs text-muted sm:hidden">← swipe to explore the bracket →</p>
+      <p className="mb-3 text-xs text-muted sm:hidden">{t("pr.swipe")}</p>
       <div className="flex items-stretch gap-3 overflow-x-auto pb-4 sm:gap-5">
         {ROUND_ORDER.map((round) => (
           <div key={round} className="flex min-w-[220px] flex-col sm:min-w-[240px]">
             <div className="mb-3 rounded-lg bg-white/5 px-3 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wider text-muted">
-              {round}
+              {stageLabel(t, round)}
             </div>
             <div className="flex flex-1 flex-col justify-around gap-3">
               {byRound(round).map((m) => (
@@ -444,11 +427,7 @@ function KnockoutCard({
 }) {
   const isFinal = match.round === "Final";
   return (
-    <div
-      className={`overflow-hidden rounded-xl border ${
-        isFinal ? "border-gold/40" : "border-white/10"
-      } bg-card/80`}
-    >
+    <div className={`overflow-hidden rounded-xl border ${isFinal ? "border-gold/40" : "border-white/10"} bg-card/80`}>
       <TeamRow match={match} team={match.a} onPick={onPick} />
       <div className="h-px bg-white/10" />
       <TeamRow match={match} team={match.b} onPick={onPick} />
@@ -489,11 +468,7 @@ function TeamRow({
       ) : (
         <span className="h-[16px] w-[22px] rounded-sm border border-dashed border-white/15" />
       )}
-      <span
-        className={`flex-1 truncate text-sm ${
-          isWinner ? "font-bold text-ink" : team ? "text-ink/90" : "text-muted/50"
-        }`}
-      >
+      <span className={`flex-1 truncate text-sm ${isWinner ? "font-bold text-ink" : team ? "text-ink/90" : "text-muted/50"}`}>
         {name(team)}
       </span>
       {isWinner && <span className="text-xs text-pitch">✓</span>}
@@ -502,17 +477,21 @@ function TeamRow({
 }
 
 function ChampionBanner({ team }: { team: string }) {
+  const { t } = useI18n();
   return (
     <div className="animate-in relative mb-8 overflow-hidden rounded-3xl border border-gold/40 p-6 text-center sm:p-8">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-gold/20 via-transparent to-violet/15" />
       <div className="relative">
         <div className="text-3xl">🏆</div>
         <p className="mt-1 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
-          Your predicted champion
+          {t("pr.yourChampion")}
         </p>
         <div className="mt-4 flex items-center justify-center gap-4">
           <TeamFlag team={team} size={64} />
           <span className="font-display text-3xl font-bold text-ink sm:text-4xl">{name(team)}</span>
+        </div>
+        <div className="mt-5 flex justify-center">
+          <OrganiskBadge labelKey="sponsor.championBy" />
         </div>
       </div>
     </div>

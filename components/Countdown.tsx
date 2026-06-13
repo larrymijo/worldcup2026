@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { countdownParts, msUntil } from "@/lib/time";
+import { useI18n } from "./I18nProvider";
 
 function Unit({ value, label }: { value: number; label: string }) {
   return (
@@ -17,6 +18,7 @@ function Unit({ value, label }: { value: number; label: string }) {
 }
 
 export function Countdown({ iso }: { iso: string }) {
+  const { t } = useI18n();
   const [ms, setMs] = useState<number | null>(null);
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export function Countdown({ iso }: { iso: string }) {
     return (
       <div className="inline-flex items-center gap-2 rounded-xl border border-ec-red/40 bg-ec-red/15 px-4 py-3 font-display text-lg text-red-200">
         <span className="live-dot h-2.5 w-2.5 rounded-full bg-ec-red" />
-        Kick-off!
+        {t("cd.kickoff")}
       </div>
     );
   }
@@ -46,13 +48,13 @@ export function Countdown({ iso }: { iso: string }) {
   );
   return (
     <div className="flex w-full items-start gap-1 sm:gap-2">
-      <Unit value={days} label="Days" />
+      <Unit value={days} label={t("cd.days")} />
       <Sep />
-      <Unit value={hours} label="Hrs" />
+      <Unit value={hours} label={t("cd.hrs")} />
       <Sep />
-      <Unit value={minutes} label="Min" />
+      <Unit value={minutes} label={t("cd.min")} />
       <Sep />
-      <Unit value={seconds} label="Sec" />
+      <Unit value={seconds} label={t("cd.sec")} />
     </div>
   );
 }

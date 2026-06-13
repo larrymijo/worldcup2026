@@ -11,10 +11,17 @@ tracker with a live countdown to the next match.
   with search (team / city / stadium) and filters by stage and group.
 - **Ecuador** (`/ecuador`) — La Tri's Group E fixtures, a live countdown to the
   next match, and the group at a glance.
+- **Predict the bracket** (`/predict`) — an interactive prediction game: pick
+  the top 2 of every group, choose 8 wildcard third-place teams, then click
+  through every knockout round to crown a champion. Picks save in the browser.
 - **Local time everywhere** — times are stored in UTC and converted client-side
   with the `Intl` API, so they're correct for every visitor automatically.
 - **Live status** — matches show `Upcoming` / `Live` / `Full time` based on the
   current time.
+- **Bilingual (Español / English)** — the UI auto-detects the visitor's browser
+  language; **Spanish is the default** for non-English browsers. A manual
+  **ES / EN** toggle lives in the navbar, the choice is remembered, and dates
+  localize too. You can also deep-link a language with `?lang=es` / `?lang=en`.
 - Responsive, dark, glassmorphic UI with country flags.
 
 ## Tech stack
@@ -58,6 +65,7 @@ app/
   layout.tsx            # shell: fonts, metadata, navbar, footer
   page.tsx              # home (hero + match explorer)
   ecuador/page.tsx      # Ecuador page
+  predict/page.tsx      # bracket prediction game
   api/matches/route.ts  # fixtures endpoint (GET /api/matches)
 components/             # UI (MatchCard, Countdown, explorer, etc.)
 lib/
@@ -73,5 +81,14 @@ lib/
 `lib/matches.ts`. To wire in a live data feed (scores, knockout teams), replace
 the body of `GET` with a `fetch` to your sports-data provider and map it onto the
 `Match` type — the rest of the app keeps working unchanged.
+
+## Sponsor
+
+Proudly **powered by [Organisk LM](https://organisklm.com)**. Clickable sponsor
+placements (all linking to organisklm.com) appear in the **navbar** (next to the
+title), the **footer**, the **predictor title + champion banner**, and a
+dedicated **"Organisk LM supports Ecuador"** banner on the Ecuador page. The logo
+lives at `public/organisk-lm.svg` (an SVG recreation); drop in an official asset
+there to swap it everywhere.
 
 > Unofficial fan project. Schedule reflects the FIFA World Cup 2026 fixtures.

@@ -1,8 +1,12 @@
+"use client";
+
 import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
 import { formatLocalDate, formatLocalTime, getMatchStatus } from "@/lib/time";
+import { stageLabel } from "@/lib/i18n";
 import { TeamFlag } from "./TeamFlag";
 import { StatusBadge } from "./StatusBadge";
+import { useI18n } from "./I18nProvider";
 
 function teamName(team: string, placeholder?: boolean) {
   if (placeholder) return team;
@@ -41,9 +45,9 @@ export function MatchCard({
   now?: number;
   highlightTeam?: string;
 }) {
+  const { t, locale } = useI18n();
   const status = getMatchStatus(match.kickoff, now);
-  const label =
-    match.stage === "Group" ? `Group ${match.group}` : match.stage;
+  const label = stageLabel(t, match.stage, match.group);
   const hasScore = match.score != null;
 
   return (
@@ -72,16 +76,16 @@ export function MatchCard({
           ) : (
             <>
               <div className="font-display text-lg font-bold leading-none text-ink sm:text-xl">
-                {formatLocalTime(match.kickoff)}
+                {formatLocalTime(match.kickoff, locale)}
               </div>
               <div className="mt-1 text-[10px] uppercase tracking-wider text-muted">
-                {formatLocalDate(match.kickoff)}
+                {formatLocalDate(match.kickoff, locale)}
               </div>
             </>
           )}
           {!hasScore && (
             <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-pitch/70">
-              vs
+              {t("vs")}
             </span>
           )}
         </div>
