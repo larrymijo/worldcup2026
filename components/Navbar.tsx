@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/", label: "All Matches" },
+  { href: "/", label: "Matches" },
+  { href: "/predict", label: "Predict" },
   { href: "/ecuador", label: "Ecuador" },
 ];
 
@@ -19,11 +20,11 @@ export function Navbar() {
             <span className="bg-pitch-grad grid h-8 w-8 shrink-0 place-items-center rounded-xl text-base shadow-lg shadow-pitch/20 sm:h-9 sm:w-9 sm:text-lg">
               ⚽
             </span>
-            <span className="flex min-w-0 flex-col leading-none">
+            <span className="hidden min-w-0 flex-col leading-none sm:flex">
               <span className="whitespace-nowrap font-display text-base font-bold tracking-wide text-ink sm:text-lg">
                 WORLD CUP <span className="text-gradient">26</span>
               </span>
-              <span className="hidden text-[10px] uppercase tracking-[0.25em] text-muted xs:block">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
                 Match Center
               </span>
             </span>
