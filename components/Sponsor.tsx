@@ -79,10 +79,10 @@ export function OrganiskAnimated({ className = "" }: { className?: string }) {
         </div>
       </div>
       <span className="text-center leading-tight">
-        <span className="block text-[10px] font-medium uppercase tracking-[0.25em] text-muted">
+        <span className="block text-[11px] font-medium uppercase tracking-[0.25em] text-muted">
           {t("sponsor.poweredBy")}
         </span>
-        <span className="block font-display text-sm font-bold tracking-wide text-[#84c44f]">
+        <span className="block font-display text-base font-bold tracking-wide text-[#84c44f] lg:text-lg">
           ORGANISK&nbsp;LM
         </span>
       </span>

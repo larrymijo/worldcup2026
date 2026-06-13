@@ -23,8 +23,8 @@ export function HomeHero() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-14 sm:px-6 sm:pt-20">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-          <div className="max-w-2xl">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-8">
+          <div className="max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
               <span className="h-2 w-2 rounded-full bg-pitch" /> {t("home.dates")}
             </span>
@@ -41,8 +41,10 @@ export function HomeHero() {
             </p>
           </div>
 
-          {/* Animated sponsor — beside the title on desktop, below it on mobile */}
-          <OrganiskAnimated className="self-start lg:shrink-0 lg:self-center" />
+          {/* Animated sponsor — centered beside the title on desktop, below it on mobile */}
+          <div className="flex justify-center lg:flex-1">
+            <OrganiskAnimated />
+          </div>
         </div>
 
         {/* Next two matches — the first thing you see under the title */}

@@ -186,14 +186,14 @@ body {
 }
 .coin-stage {
   position: relative;
-  height: 5.5rem;
-  width: 5.5rem;
-  perspective: 800px;
+  height: 7rem;
+  width: 7rem;
+  perspective: 900px;
 }
 @media (min-width: 1024px) {
   .coin-stage {
-    height: 7rem;
-    width: 7rem;
+    height: 11rem;
+    width: 11rem;
   }
 }
 .coin-glow {
