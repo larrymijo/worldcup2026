@@ -164,10 +164,83 @@ body {
   animation: fadeInUp 0.45s ease both;
 }
 
+/* 3D spinning "powered by" medallion */
+@keyframes spinY {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+.coin-stage {
+  position: relative;
+  height: 5.5rem;
+  width: 5.5rem;
+  perspective: 800px;
+}
+@media (min-width: 1024px) {
+  .coin-stage {
+    height: 7rem;
+    width: 7rem;
+  }
+}
+.coin-glow {
+  position: absolute;
+  inset: -16px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(124, 191, 67, 0.4), transparent 70%);
+  filter: blur(12px);
+  animation: glowPulse 4s ease-in-out infinite;
+}
+.coin-float {
+  height: 100%;
+  width: 100%;
+  transform-style: preserve-3d;
+  animation: floatY 4.5s ease-in-out infinite;
+}
+.coin {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  transform-style: preserve-3d;
+  animation: spinY 7s linear infinite;
+}
+.coin:hover {
+  animation-play-state: paused;
+}
+.coin-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backface-visibility: hidden;
+}
+.coin-face-back {
+  transform: rotateY(180deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .live-dot,
   .float-slow,
-  .animate-in {
+  .animate-in,
+  .coin,
+  .coin-float,
+  .coin-glow {
     animation: none;
   }
 }

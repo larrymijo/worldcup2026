@@ -54,6 +54,42 @@ export function OrganiskBadge({
   );
 }
 
+/** Animated 3D "Powered by Organisk LM" medallion (spins + floats, links out). */
+export function OrganiskAnimated({ className = "" }: { className?: string }) {
+  const { t } = useI18n();
+  return (
+    <a
+      href={SITE}
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+      aria-label={`${t("sponsor.poweredBy")} Organisk LM (organisklm.com)`}
+      className={`group inline-flex flex-col items-center gap-3 ${className}`}
+    >
+      <div className="coin-stage">
+        <span className="coin-glow" aria-hidden />
+        <div className="coin-float">
+          <div className="coin">
+            <span className="coin-face">
+              <img src="/organisk-lm.svg" alt="Organisk LM logo" className="h-full w-full p-2" />
+            </span>
+            <span className="coin-face coin-face-back" aria-hidden>
+              <img src="/organisk-lm.svg" alt="" className="h-full w-full p-2" />
+            </span>
+          </div>
+        </div>
+      </div>
+      <span className="text-center leading-tight">
+        <span className="block text-[10px] font-medium uppercase tracking-[0.25em] text-muted">
+          {t("sponsor.poweredBy")}
+        </span>
+        <span className="block font-display text-sm font-bold tracking-wide text-[#84c44f]">
+          ORGANISK&nbsp;LM
+        </span>
+      </span>
+    </a>
+  );
+}
+
 /** Compact, clickable Organisk logo for the navbar (redirects to organisklm.com). */
 export function OrganiskLogoLink({ className = "" }: { className?: string }) {
   const { t } = useI18n();

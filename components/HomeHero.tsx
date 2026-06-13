@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { NextUp } from "./NextUp";
+import { OrganiskAnimated } from "./Sponsor";
 import { useI18n } from "./I18nProvider";
 
 export function HomeHero() {
@@ -22,20 +23,27 @@ export function HomeHero() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-14 sm:px-6 sm:pt-20">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          <span className="h-2 w-2 rounded-full bg-pitch" /> {t("home.dates")}
-        </span>
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              <span className="h-2 w-2 rounded-full bg-pitch" /> {t("home.dates")}
+            </span>
 
-        <h1 className="mt-5 max-w-3xl font-display text-[2.6rem] font-bold leading-[1.05] xs:text-5xl sm:text-6xl lg:text-7xl">
-          {t("home.titlePre")}
-          <span className="text-gradient">2026</span>
-          <br />
-          {t("home.titleLine2")}
-        </h1>
+            <h1 className="mt-5 font-display text-[2.6rem] font-bold leading-[1.05] xs:text-5xl sm:text-6xl lg:text-7xl">
+              {t("home.titlePre")}
+              <span className="text-gradient">2026</span>
+              <br />
+              {t("home.titleLine2")}
+            </h1>
 
-        <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:mt-5 sm:text-lg">
-          {t("home.subtitle")}
-        </p>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:mt-5 sm:text-lg">
+              {t("home.subtitle")}
+            </p>
+          </div>
+
+          {/* Animated sponsor — beside the title on desktop, below it on mobile */}
+          <OrganiskAnimated className="self-start lg:shrink-0 lg:self-center" />
+        </div>
 
         {/* Next two matches — the first thing you see under the title */}
         <NextUp />
