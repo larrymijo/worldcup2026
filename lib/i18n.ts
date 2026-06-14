@@ -10,6 +10,7 @@ type Dict = Record<string, string>;
 const en: Dict = {
   // nav / brand
   "nav.matches": "Matches",
+  "nav.groups": "Groups",
   "nav.predict": "Predict",
   "nav.ecuador": "Ecuador",
   "brand.tagline": "Match Center",
@@ -141,20 +142,20 @@ const en: Dict = {
   "pr.titlePre": "Predict the ",
   "pr.titleHl": "bracket",
   "pr.subtitle":
-    "Call the group winners, pick your wildcard underdogs, then click your way through every knockout round to crown a champion. Your picks save automatically in this browser.",
+    "Predict a scoreline for every group match — the tables update live. Then call every knockout result, settle the draws on penalties, and crown your champion. Everything saves in this browser.",
   "pr.groups": "Groups",
   "pr.wildcards": "Wildcards",
   "pr.champion": "Champion",
   "pr.reset": "Reset",
   "pr.yourChampion": "Your predicted champion",
   "pr.step1": "Group stage",
-  "pr.step1hint": "Tap two teams in each group to set 1st & 2nd place.",
+  "pr.step1hint": "Set a score for every match — standings, qualifiers and best thirds update instantly.",
   "pr.step2": "Wildcard third-place teams",
   "pr.step2hint":
     "Choose 8 of the best third-placed teams (max one per group) to complete the 32.",
   "pr.step3": "Knockout bracket",
   "pr.step3hint":
-    "Tap the team you think advances in each match — winners flow to the next round.",
+    "Set each knockout score; level games are settled on penalties. Winners flow onward.",
   "pr.set": "set",
   "pr.pickMore": "pick {n} more",
   "pr.thirdPlace": "3rd place",
@@ -163,10 +164,39 @@ const en: Dict = {
   "pr.locked": "Bracket locked",
   "pr.lockedDesc": "Finish the setup to unlock the knockout rounds:",
   "pr.swipe": "← swipe to explore the bracket →",
+  "pr.fillEmpty": "Fill empty",
+  "pr.bestThirds": "Best third-placed teams",
+  "pr.bestThirdsHint": "The 8 best third-placed teams (by your scores) complete the Round of 32.",
+  "pr.pens": "Pens",
+  "pr.bracketLockedScores": "Set a score for all 72 group matches to unlock the knockout bracket.",
+
+  // table headers
+  "tbl.team": "Team",
+  "tbl.pld": "Pld",
+  "tbl.gd": "GD",
+  "tbl.pts": "Pts",
+
+  // groups & standings page
+  "gr.titlePre": "Groups & ",
+  "gr.titleHl": "standings",
+  "gr.subtitle":
+    "Live group tables, the race for the best third-placed spots, the golden-boot leaderboard and tournament stats — all from real results.",
+  "gr.tables": "Group tables",
+  "gr.scorers": "Top scorers",
+  "gr.thirds": "Best third-placed teams",
+  "gr.thirdsHint": "The 8 best third-placed teams advance to the Round of 32.",
+  "gr.noResults": "No results yet — check back once matches kick off.",
+  "gr.played": "Played",
+  "gr.goals": "Goals",
+  "gr.avg": "Goals / match",
+  "gr.attendance": "Attendance",
+  "gr.cards": "Cards",
+  "gr.cleanSheets": "Clean sheets",
 };
 
 const es: Dict = {
   "nav.matches": "Partidos",
+  "nav.groups": "Grupos",
   "nav.predict": "Predicción",
   "nav.ecuador": "Ecuador",
   "brand.tagline": "Centro de Partidos",
@@ -288,20 +318,20 @@ const es: Dict = {
   "pr.titlePre": "Predice el ",
   "pr.titleHl": "cuadro",
   "pr.subtitle":
-    "Elige los ganadores de grupo, escoge a tus comodines sorpresa y avanza por cada ronda eliminatoria hasta coronar a un campeón. Tus elecciones se guardan automáticamente en este navegador.",
+    "Predice un marcador para cada partido de grupos — las tablas se actualizan al instante. Luego decide cada resultado eliminatorio, resuelve los empates por penales y corona a tu campeón. Todo se guarda en este navegador.",
   "pr.groups": "Grupos",
   "pr.wildcards": "Comodines",
   "pr.champion": "Campeón",
   "pr.reset": "Reiniciar",
   "pr.yourChampion": "Tu campeón pronosticado",
   "pr.step1": "Fase de grupos",
-  "pr.step1hint": "Toca dos equipos en cada grupo para elegir 1º y 2º.",
+  "pr.step1hint": "Pon un marcador a cada partido — la tabla, clasificados y mejores terceros se actualizan al instante.",
   "pr.step2": "Mejores terceros (comodines)",
   "pr.step2hint":
     "Elige 8 de los mejores terceros (máx. uno por grupo) para completar los 32.",
   "pr.step3": "Cuadro de eliminatorias",
   "pr.step3hint":
-    "Toca el equipo que crees que avanza en cada partido — los ganadores pasan a la siguiente ronda.",
+    "Pon el marcador de cada eliminatoria; los empates se deciden por penales. Los ganadores avanzan.",
   "pr.set": "listo",
   "pr.pickMore": "elige {n} más",
   "pr.thirdPlace": "3er puesto",
@@ -310,6 +340,34 @@ const es: Dict = {
   "pr.locked": "Cuadro bloqueado",
   "pr.lockedDesc": "Completa la configuración para desbloquear las eliminatorias:",
   "pr.swipe": "← desliza para explorar el cuadro →",
+  "pr.fillEmpty": "Rellenar",
+  "pr.bestThirds": "Mejores terceros",
+  "pr.bestThirdsHint": "Los 8 mejores terceros (según tus marcadores) completan los dieciseisavos.",
+  "pr.pens": "Penales",
+  "pr.bracketLockedScores": "Pon un marcador a los 72 partidos de grupos para desbloquear las eliminatorias.",
+
+  // table headers
+  "tbl.team": "Equipo",
+  "tbl.pld": "PJ",
+  "tbl.gd": "DG",
+  "tbl.pts": "Pts",
+
+  // groups & standings page
+  "gr.titlePre": "Grupos y ",
+  "gr.titleHl": "clasificación",
+  "gr.subtitle":
+    "Tablas de grupos en vivo, la lucha por los mejores terceros, la tabla de goleadores y estadísticas del torneo — todo con resultados reales.",
+  "gr.tables": "Tablas de grupos",
+  "gr.scorers": "Goleadores",
+  "gr.thirds": "Mejores terceros",
+  "gr.thirdsHint": "Los 8 mejores terceros avanzan a los dieciseisavos.",
+  "gr.noResults": "Aún no hay resultados — vuelve cuando empiecen los partidos.",
+  "gr.played": "Jugados",
+  "gr.goals": "Goles",
+  "gr.avg": "Goles / partido",
+  "gr.attendance": "Asistencia",
+  "gr.cards": "Tarjetas",
+  "gr.cleanSheets": "Vallas invictas",
 };
 
 export const DICTS: Record<Locale, Dict> = { en, es };

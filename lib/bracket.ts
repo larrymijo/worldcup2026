@@ -92,6 +92,17 @@ export interface ResolvedMatch {
   winner?: string;
 }
 
+export interface KoScore {
+  h: number;
+  a: number;
+}
+
+export interface ResolvedKoMatch extends ResolvedMatch {
+  score?: KoScore;
+  /** Which side advances on penalties when the score is level. */
+  pen?: "a" | "b";
+}
+
 export interface PredictionInput {
   /** group letter -> ordered picks [first, second] */
   groupPicks: Record<string, string[]>;
@@ -137,4 +148,49 @@ export function resolveBracket(input: PredictionInput): {
   }
 
   return { matches, cleanedWinners: cleaned };
+}
+
+/**
+ * Resolve the bracket from predicted scorelines. The winner of each tie is the
+ * higher score; a level score advances the side chosen on penalties (`koPens`).
+ * A single forward pass resolves the whole tree.
+ */
+export function resolveBracketScores(input: {
+  groupPicks: Record<string, string[]>;
+  thirds: string[];
+  koScores: Record<number, KoScore>;
+  koPens: Record<number, "a" | "b">;
+}): { matches: Record<number, ResolvedKoMatch> } {
+  const { groupPicks, thirds, koScores, koPens } = input;
+  const firstOf = (g: string) => groupPicks[g]?.[0];
+  const secondOf = (g: string) => groupPicks[g]?.[1];
+  const orderedThirds = [...thirds].sort((x, y) =>
+    (groupOf(x) ?? "").localeCompare(groupOf(y) ?? ""),
+  );
+
+  const matches: Record<number, ResolvedKoMatch> = {};
+  const winnerOf: Record<number, string | undefined> = {};
+
+  const teamOf = (s: Slot): string | undefined => {
+    if (s.kind === "pos") return s.pos === 1 ? firstOf(s.group) : secondOf(s.group);
+    if (s.kind === "third") return orderedThirds[s.index];
+    return winnerOf[s.from];
+  };
+
+  for (const m of BRACKET) {
+    const a = teamOf(m.a);
+    const b = teamOf(m.b);
+    const score = koScores[m.id];
+    const pen = koPens[m.id];
+    let winner: string | undefined;
+    if (a && b && score) {
+      if (score.h > score.a) winner = a;
+      else if (score.h < score.a) winner = b;
+      else winner = pen === "a" ? a : pen === "b" ? b : undefined;
+    }
+    winnerOf[m.id] = winner;
+    matches[m.id] = { id: m.id, round: m.round, a, b, winner, score, pen };
+  }
+
+  return { matches };
 }

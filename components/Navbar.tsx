@@ -17,6 +17,7 @@ export function Navbar() {
 
   const links = [
     { href: "/", label: t("nav.matches"), flag: "" },
+    { href: "/groups", label: t("nav.groups"), flag: "" },
     { href: "/predict", label: t("nav.predict"), flag: "" },
     { href: "/ecuador", label: t("nav.ecuador"), flag: "🇪🇨" },
   ];

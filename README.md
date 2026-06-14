@@ -11,9 +11,14 @@ tracker with a live countdown to the next match.
   with search (team / city / stadium) and filters by stage and group.
 - **Ecuador** (`/ecuador`) — La Tri's Group E fixtures, a live countdown to the
   next match, and the group at a glance.
-- **Predict the bracket** (`/predict`) — an interactive prediction game: pick
-  the top 2 of every group, choose 8 wildcard third-place teams, then click
-  through every knockout round to crown a champion. Picks save in the browser.
+- **Groups & standings** (`/groups`) — live group tables computed from real
+  results (points, GD, form), the race for the 8 best third-placed spots, a
+  top-scorers leaderboard and tournament-wide stats (goals, clean sheets,
+  attendance…).
+- **Predict the bracket** (`/predict`) — a score-based prediction game: enter a
+  scoreline for every group match and the tables, qualifiers and best thirds
+  update live; then set every knockout score (level games decided on penalties)
+  to crown a champion. A "Fill empty" shortcut and auto-save in the browser.
 - **Local time everywhere** — times are stored in UTC and converted client-side
   with the `Intl` API, so they're correct for every visitor automatically.
 - **Live scores (real)** — `/api/matches` pulls real World Cup scores from
