@@ -21,6 +21,13 @@ tracker with a live countdown to the next match.
   score, status (`Upcoming` / `Live` / `Full time`) and live minute. The client
   polls every ~25s so scorelines and the minute update on their own, and a
   badge shows whether scores are **Live** or **Demo**.
+- **Match details** — tap any match card to open a detail sheet with the goal
+  scorers, a stat comparison (possession, shots, fouls, corners), attendance,
+  broadcast networks, recent form, and an editorial recap — all from the same
+  ESPN feed (no extra requests).
+- **Team selector** — filter the fixture list to a single team and get a
+  spotlight banner with the team badge, group, a computed W-D-L record and
+  recent form.
 - **Bilingual (Español / English)** — the UI auto-detects the visitor's browser
   language; **Spanish is the default** for non-English browsers. A manual
   **ES / EN** toggle lives in the navbar, the choice is remembered, and dates

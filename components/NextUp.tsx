@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
 import {
@@ -10,16 +11,18 @@ import {
   statusOf,
 } from "@/lib/time";
 import { stageLabel } from "@/lib/i18n";
-import { TeamFlag } from "./TeamFlag";
+import { TeamCrest } from "./TeamCrest";
 import { StatusBadge } from "./StatusBadge";
+import { Modal } from "./Modal";
+import { MatchDetailModal } from "./MatchDetailModal";
 import { OrganiskBadge } from "./Sponsor";
 import { useMatches, useNow } from "./useMatches";
 import { useI18n } from "./I18nProvider";
 
-function TeamSide({ team, placeholder }: { team: string; placeholder?: boolean }) {
+function TeamSide({ team, crest, placeholder }: { team: string; crest?: string; placeholder?: boolean }) {
   return (
     <div className="flex min-w-0 flex-col items-center gap-2 text-center">
-      <TeamFlag team={team} placeholder={placeholder} size={48} />
+      <TeamCrest team={team} crest={crest} placeholder={placeholder} size={48} />
       <span className="line-clamp-2 text-sm font-semibold leading-tight text-ink">
         {placeholder ? team : (TEAMS[team]?.name ?? team)}
       </span>
@@ -29,61 +32,85 @@ function TeamSide({ team, placeholder }: { team: string; placeholder?: boolean }
 
 function FeaturedMatch({ match, now }: { match: Match; now: number }) {
   const { t, locale } = useI18n();
+  const [open, setOpen] = useState(false);
   const status = statusOf(match, now);
   const label = stageLabel(t, match.stage, match.group);
   const hasScore = match.score != null && status !== "upcoming";
 
   return (
-    <article className="glass card-hover relative overflow-hidden rounded-2xl p-5">
-      {/* left accent */}
-      <span className="bg-pitch-grad absolute inset-y-0 left-0 w-1" aria-hidden />
+    <>
+      <article
+        role="button"
+        tabIndex={0}
+        aria-label={`${t("detail.open")}: ${match.homePlaceholder ? match.home : TEAMS[match.home]?.name ?? match.home} vs ${match.awayPlaceholder ? match.away : TEAMS[match.away]?.name ?? match.away}`}
+        onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="glass card-hover relative cursor-pointer overflow-hidden rounded-2xl p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-pitch/50"
+      >
+        {/* left accent */}
+        <span className="bg-pitch-grad absolute inset-y-0 left-0 w-1" aria-hidden />
 
-      <div className="mb-4 flex items-center justify-between">
-        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-          {label}
-        </span>
-        {status === "upcoming" ? (
-          <span className="rounded-full border border-pitch/30 bg-pitch/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-pitch">
-            {t("upnext.in")} {formatRelative(msUntil(match.kickoff, now))}
+        <div className="mb-4 flex items-center justify-between">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
+            {label}
           </span>
-        ) : (
-          <StatusBadge status={status} minute={match.minute} />
-        )}
-      </div>
-
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
-        <TeamSide team={match.home} placeholder={match.homePlaceholder} />
-        <div className="flex flex-col items-center px-0.5">
-          {hasScore ? (
-            <div className="whitespace-nowrap font-display text-2xl font-bold leading-none text-ink">
-              {match.score!.home}
-              <span className="mx-1.5 text-muted">-</span>
-              {match.score!.away}
-            </div>
+          {status === "upcoming" ? (
+            <span className="rounded-full border border-pitch/30 bg-pitch/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-pitch">
+              {t("upnext.in")} {formatRelative(msUntil(match.kickoff, now))}
+            </span>
           ) : (
-            <>
-              <div className="whitespace-nowrap font-display text-xl font-bold leading-none text-ink sm:text-2xl">
-                {formatLocalTime(match.kickoff, locale)}
-              </div>
-              <div className="mt-1 text-[10px] uppercase tracking-wider text-muted">
-                {formatLocalDate(match.kickoff, locale)}
-              </div>
-            </>
+            <StatusBadge status={status} minute={match.minute} />
           )}
         </div>
-        <TeamSide team={match.away} placeholder={match.awayPlaceholder} />
-      </div>
 
-      <div className="mt-4 flex items-center gap-1.5 border-t border-white/5 pt-3 text-[11px] text-muted">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" className="shrink-0">
-          <path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z" stroke="currentColor" strokeWidth="1.6" />
-          <circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-        </svg>
-        <span className="truncate">
-          {match.venue} · {match.city}
-        </span>
-      </div>
-    </article>
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
+          <TeamSide team={match.home} crest={match.homeCrest} placeholder={match.homePlaceholder} />
+          <div className="flex flex-col items-center px-0.5">
+            {hasScore ? (
+              <div className="whitespace-nowrap font-display text-2xl font-bold leading-none text-ink">
+                {match.score!.home}
+                <span className="mx-1.5 text-muted">-</span>
+                {match.score!.away}
+              </div>
+            ) : (
+              <>
+                <div className="whitespace-nowrap font-display text-xl font-bold leading-none text-ink sm:text-2xl">
+                  {formatLocalTime(match.kickoff, locale)}
+                </div>
+                <div className="mt-1 text-[10px] uppercase tracking-wider text-muted">
+                  {formatLocalDate(match.kickoff, locale)}
+                </div>
+              </>
+            )}
+          </div>
+          <TeamSide team={match.away} crest={match.awayCrest} placeholder={match.awayPlaceholder} />
+        </div>
+
+        <div className="mt-4 flex items-center justify-between gap-1.5 border-t border-white/5 pt-3 text-[11px] text-muted">
+          <span className="inline-flex min-w-0 items-center gap-1.5">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" className="shrink-0">
+              <path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z" stroke="currentColor" strokeWidth="1.6" />
+              <circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
+            <span className="truncate">
+              {match.venue} · {match.city}
+            </span>
+          </span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" className="shrink-0 text-pitch/70">
+            <path d="m9 6 6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </article>
+
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <MatchDetailModal match={match} now={now} onClose={() => setOpen(false)} />
+      </Modal>
+    </>
   );
 }
 

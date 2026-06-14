@@ -1,4 +1,4 @@
-import type { Match } from "./types";
+import type { Match, MatchDetail, MatchEvent, TeamStats } from "./types";
 
 // Live scores.
 //
@@ -101,16 +101,80 @@ interface FeedEntry {
   status: "live" | "finished" | "upcoming";
   score?: { home: number; away: number };
   minute?: string;
+  homeCrest?: string;
+  awayCrest?: string;
+  detail?: MatchDetail;
+}
+
+interface EspnCompetitor {
+  id?: string;
+  homeAway?: string;
+  score?: string;
+  form?: string;
+  team?: { id?: string; displayName?: string; logo?: string };
+  statistics?: { name?: string; displayValue?: string }[];
+}
+
+interface EspnDetail {
+  clock?: { displayValue?: string };
+  team?: { id?: string };
+  scoringPlay?: boolean;
+  redCard?: boolean;
+  yellowCard?: boolean;
+  penaltyKick?: boolean;
+  ownGoal?: boolean;
+  shootout?: boolean;
+  athletesInvolved?: { displayName?: string; shortName?: string }[];
 }
 
 interface EspnScoreboard {
   events?: {
     date: string;
+    headlines?: { description?: string; shortLinkText?: string }[];
     competitions?: {
+      attendance?: number;
+      broadcasts?: { names?: string[] }[];
       status?: { displayClock?: string; type?: { state?: string; shortDetail?: string } };
-      competitors?: { homeAway?: string; score?: string; team?: { displayName?: string } }[];
+      competitors?: EspnCompetitor[];
+      details?: EspnDetail[];
     }[];
   }[];
+}
+
+const STAT_KEYS: Record<string, keyof TeamStats> = {
+  possessionPct: "possession",
+  totalShots: "shots",
+  shotsOnTarget: "shotsOnTarget",
+  foulsCommitted: "fouls",
+  wonCorners: "corners",
+};
+
+function parseStats(stats?: EspnCompetitor["statistics"]): TeamStats {
+  const out: TeamStats = {};
+  for (const s of stats ?? []) {
+    const key = s.name ? STAT_KEYS[s.name] : undefined;
+    const value = Number(s.displayValue);
+    if (key && !Number.isNaN(value)) out[key] = value;
+  }
+  return out;
+}
+
+function parseEvents(details: EspnDetail[] | undefined, homeId?: string, awayId?: string): MatchEvent[] {
+  const out: MatchEvent[] = [];
+  for (const d of details ?? []) {
+    const side = d.team?.id && d.team.id === homeId ? "home" : d.team?.id === awayId ? "away" : null;
+    if (!side) continue;
+    const minute = d.clock?.displayValue ?? "";
+    const player = d.athletesInvolved?.[0]?.shortName ?? d.athletesInvolved?.[0]?.displayName ?? "";
+    if (d.scoringPlay && !d.shootout) {
+      out.push({ minute, type: "goal", side, player, penalty: d.penaltyKick || undefined, ownGoal: d.ownGoal || undefined });
+    } else if (d.redCard) {
+      out.push({ minute, type: "red", side, player });
+    } else if (d.yellowCard) {
+      out.push({ minute, type: "yellow", side, player });
+    }
+  }
+  return out;
 }
 
 /** Fetch real scores from ESPN. Keyed by `YYYY-MM-DD|homeNorm|awayNorm`. */
@@ -138,20 +202,41 @@ export async function fetchEspnScores(): Promise<Map<string, FeedEntry>> {
       if (!comp || !home || !away) continue;
 
       const state = comp.status?.type?.state; // "pre" | "in" | "post"
-      const detail = comp.status?.type?.shortDetail ?? "";
+      const shortDetail = comp.status?.type?.shortDetail ?? "";
       const score = { home: Number(home.score ?? 0), away: Number(away.score ?? 0) };
 
+      // Rich detail: stats (live/finished only), scorers, attendance, recap, TV.
+      const events = parseEvents(comp.details, home.team?.id, away.team?.id);
+      const broadcast = [
+        ...new Set((comp.broadcasts ?? []).flatMap((b) => b.names ?? []).filter(Boolean)),
+      ];
+      const detail: MatchDetail = {};
+      if (comp.attendance && comp.attendance > 0) detail.attendance = comp.attendance;
+      const recap = ev.headlines?.[0]?.description ?? ev.headlines?.[0]?.shortLinkText;
+      if (recap) detail.recap = recap;
+      if (broadcast.length) detail.broadcast = broadcast;
+      if (events.length) detail.events = events;
+      if (home.form || away.form) detail.form = { home: home.form, away: away.form };
+      if (state !== "pre") detail.stats = { home: parseStats(home.statistics), away: parseStats(away.statistics) };
+
+      const base: FeedEntry = {
+        status: "upcoming",
+        homeCrest: home.team?.logo,
+        awayCrest: away.team?.logo,
+        detail: Object.keys(detail).length ? detail : undefined,
+      };
       let entry: FeedEntry;
       if (state === "post") {
-        entry = { status: "finished", score };
+        entry = { ...base, status: "finished", score };
       } else if (state === "in") {
         entry = {
+          ...base,
           status: "live",
           score,
-          minute: /half|^ht$/i.test(detail) ? "HT" : comp.status?.displayClock || detail || undefined,
+          minute: /half|^ht$/i.test(shortDetail) ? "HT" : comp.status?.displayClock || shortDetail || undefined,
         };
       } else {
-        entry = { status: "upcoming" };
+        entry = base;
       }
 
       const pair = `${norm(home.team?.displayName ?? "")}|${norm(away.team?.displayName ?? "")}`;
@@ -173,6 +258,9 @@ export function mergeExternal(matches: Match[], feed: Map<string, FeedEntry>): M
       ...m,
       status: hit.status,
       minute: hit.minute,
+      homeCrest: hit.homeCrest,
+      awayCrest: hit.awayCrest,
+      detail: hit.detail,
       ...(hit.score ? { score: hit.score } : {}),
     };
   });

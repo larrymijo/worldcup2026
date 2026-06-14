@@ -5,6 +5,7 @@ import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
 import { formatLocalDateLong, groupByLocalDate, statusOf } from "@/lib/time";
 import { MatchCard } from "./MatchCard";
+import { TeamSpotlight } from "./TeamSpotlight";
 import { useMatches, useNow } from "./useMatches";
 import { useI18n } from "./I18nProvider";
 
@@ -25,20 +26,51 @@ export function MatchExplorer() {
 
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("all");
+  const [team, setTeam] = useState("all");
   const [stage, setStage] = useState<StageFilter>("all");
   const [onlyUpcoming, setOnlyUpcoming] = useState(false);
+
+  // Team list + crest map, derived from the (feed-enriched) fixtures.
+  const teamList = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of matches) {
+      if (!m.homePlaceholder && TEAMS[m.home]) set.add(m.home);
+      if (!m.awayPlaceholder && TEAMS[m.away]) set.add(m.away);
+    }
+    return [...set].sort((a, b) => (TEAMS[a]?.name ?? a).localeCompare(TEAMS[b]?.name ?? b));
+  }, [matches]);
+
+  const crests = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const m of matches) {
+      if (m.homeCrest && !map[m.home]) map[m.home] = m.homeCrest;
+      if (m.awayCrest && !map[m.away]) map[m.away] = m.awayCrest;
+    }
+    return map;
+  }, [matches]);
+
+  const teamMatches = useMemo(
+    () =>
+      team === "all"
+        ? []
+        : matches
+            .filter((m) => m.home === team || m.away === team)
+            .sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff)),
+    [matches, team],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return matches.filter((m) => {
       if (q && !searchText(m).includes(q)) return false;
+      if (team !== "all" && m.home !== team && m.away !== team) return false;
       if (group !== "all" && m.group !== group) return false;
       if (stage === "group" && m.stage !== "Group") return false;
       if (stage === "knockout" && m.stage === "Group") return false;
       if (onlyUpcoming && statusOf(m, now) === "finished") return false;
       return true;
     });
-  }, [matches, query, group, stage, onlyUpcoming, now]);
+  }, [matches, query, team, group, stage, onlyUpcoming, now]);
 
   const days = useMemo(() => groupByLocalDate(filtered), [filtered]);
 
@@ -85,6 +117,20 @@ export function MatchExplorer() {
                 </button>
               ))}
             </div>
+
+            {/* Team select */}
+            <select
+              value={team}
+              onChange={(e) => setTeam(e.target.value)}
+              className="max-w-[10rem] rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-ink focus:border-pitch/50 focus:outline-none"
+            >
+              <option value="all" className="bg-night">{t("filters.allTeams")}</option>
+              {teamList.map((tm) => (
+                <option key={tm} value={tm} className="bg-night">
+                  {TEAMS[tm]?.name ?? tm}
+                </option>
+              ))}
+            </select>
 
             {/* Group select */}
             <select
@@ -147,6 +193,11 @@ export function MatchExplorer() {
           </span>
         </div>
       </div>
+
+      {/* Team spotlight (when a single team is selected) */}
+      {team !== "all" && teamMatches.length > 0 && (
+        <TeamSpotlight team={team} crest={crests[team]} matches={teamMatches} now={now} />
+      )}
 
       {/* States */}
       {error && (
