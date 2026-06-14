@@ -56,6 +56,7 @@ const en: Dict = {
   "status.live": "Live",
   "status.ft": "Full time",
   "status.upcoming": "Upcoming",
+  "status.ht": "HT",
 
   // stages
   "stage.group": "Group",
@@ -77,6 +78,9 @@ const en: Dict = {
   "filters.countOne": "{n} match",
   "filters.countOther": "{n} matches",
   "filters.yourTime": "Your local time",
+  "scores.live": "Live scores",
+  "scores.demo": "Demo scores",
+  "scores.demoHint": "Simulated results for preview — add a data feed for real scores.",
   "empty.title": "No matches found",
   "empty.desc": "Try clearing the search or filters.",
   "error.schedule": "Couldn't load the schedule: {error}",
@@ -174,6 +178,7 @@ const es: Dict = {
   "status.live": "En vivo",
   "status.ft": "Finalizado",
   "status.upcoming": "Próximo",
+  "status.ht": "DESC",
 
   "stage.group": "Grupo",
   "stage.r32": "Dieciseisavos",
@@ -193,6 +198,9 @@ const es: Dict = {
   "filters.countOne": "{n} partido",
   "filters.countOther": "{n} partidos",
   "filters.yourTime": "Tu hora local",
+  "scores.live": "Marcadores en vivo",
+  "scores.demo": "Resultados demo",
+  "scores.demoHint": "Resultados simulados para vista previa — configura un proveedor para datos reales.",
   "empty.title": "No se encontraron partidos",
   "empty.desc": "Prueba a borrar la búsqueda o los filtros.",
   "error.schedule": "No se pudo cargar el calendario: {error}",

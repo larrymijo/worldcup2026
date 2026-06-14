@@ -60,6 +60,11 @@ export function getMatchStatus(iso: string, now: number = Date.now()): MatchStat
   return "finished";
 }
 
+/** Prefer the live feed's status; otherwise fall back to a time-based guess. */
+export function statusOf(m: { kickoff: string; status?: MatchStatus }, now: number = Date.now()): MatchStatus {
+  return m.status ?? getMatchStatus(m.kickoff, now);
+}
+
 /** Group matches by local day, preserving chronological order. */
 export function groupByLocalDate(matches: Match[]): { key: string; iso: string; matches: Match[] }[] {
   const groups = new Map<string, { key: string; iso: string; matches: Match[] }>();

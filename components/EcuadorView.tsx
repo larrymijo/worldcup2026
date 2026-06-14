@@ -2,7 +2,7 @@
 
 import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
-import { formatLocalDateLong, formatLocalTime, getMatchStatus } from "@/lib/time";
+import { formatLocalDateLong, formatLocalTime, statusOf } from "@/lib/time";
 import { stageLabel } from "@/lib/i18n";
 import { MatchCard } from "./MatchCard";
 import { Countdown } from "./Countdown";
@@ -28,7 +28,7 @@ export function EcuadorView() {
     .sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff));
 
   const nextMatch =
-    ecuador.find((m) => getMatchStatus(m.kickoff, now) !== "finished") ?? ecuador.at(-1);
+    ecuador.find((m) => statusOf(m, now) !== "finished") ?? ecuador.at(-1);
 
   return (
     <div>
@@ -138,9 +138,10 @@ export function EcuadorView() {
 
 function NextMatchPanel({ match, now }: { match: Match; now: number }) {
   const { t, locale } = useI18n();
-  const status = getMatchStatus(match.kickoff, now);
+  const status = statusOf(match, now);
   const { team, venue } = opponentOf(match);
   const isLiveOrFinished = status !== "upcoming";
+  const hasScore = match.score != null && isLiveOrFinished;
 
   return (
     <div className="glass rounded-3xl p-5 sm:p-6">
@@ -162,7 +163,15 @@ function NextMatchPanel({ match, now }: { match: Match; now: number }) {
           <TeamFlag team="Ecuador" size={52} />
           <span className="text-sm font-bold text-ec-yellow">Ecuador</span>
         </div>
-        <span className="font-display text-sm text-muted">{venue ? t("vs") : t("at")}</span>
+        {hasScore ? (
+          <span className="font-display text-3xl font-bold text-ink">
+            {match.score!.home}
+            <span className="mx-1.5 text-muted">-</span>
+            {match.score!.away}
+          </span>
+        ) : (
+          <span className="font-display text-sm text-muted">{venue ? t("vs") : t("at")}</span>
+        )}
         <div className="flex flex-col items-center gap-2">
           <TeamFlag team={team} size={52} />
           <span className="text-sm font-bold text-ink">{TEAMS[team]?.name ?? team}</span>
@@ -178,8 +187,17 @@ function NextMatchPanel({ match, now }: { match: Match; now: number }) {
 
       <div className="mt-5 flex justify-center">
         {isLiveOrFinished ? (
-          <span className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-muted">
-            {status === "live" ? t("ec.inProgress") : t("status.ft")}
+          <span
+            className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold ${
+              status === "live"
+                ? "border-ec-red/40 bg-ec-red/15 text-red-200"
+                : "border-white/10 bg-white/5 text-muted"
+            }`}
+          >
+            {status === "live" && <span className="live-dot h-2 w-2 rounded-full bg-ec-red" />}
+            {status === "live"
+              ? `${t("ec.inProgress")}${match.minute ? ` · ${match.minute === "HT" ? t("status.ht") : match.minute}` : ""}`
+              : t("status.ft")}
           </span>
         ) : (
           <Countdown iso={match.kickoff} />

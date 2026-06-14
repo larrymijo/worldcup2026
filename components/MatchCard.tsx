@@ -2,7 +2,7 @@
 
 import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
-import { formatLocalDate, formatLocalTime, getMatchStatus } from "@/lib/time";
+import { formatLocalDate, formatLocalTime, statusOf } from "@/lib/time";
 import { stageLabel } from "@/lib/i18n";
 import { TeamFlag } from "./TeamFlag";
 import { StatusBadge } from "./StatusBadge";
@@ -46,7 +46,7 @@ export function MatchCard({
   highlightTeam?: string;
 }) {
   const { t, locale } = useI18n();
-  const status = getMatchStatus(match.kickoff, now);
+  const status = statusOf(match, now);
   const label = stageLabel(t, match.stage, match.group);
   const hasScore = match.score != null;
 
@@ -56,7 +56,7 @@ export function MatchCard({
         <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
           {label}
         </span>
-        <StatusBadge status={status} />
+        <StatusBadge status={status} minute={match.minute} />
       </div>
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-3">

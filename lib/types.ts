@@ -30,8 +30,12 @@ export interface Match {
   /** Host city. */
   city: string;
   country: HostCountry;
-  /** Final score, when known. `null`/undefined means not played yet. */
+  /** Live/final score, when known. `null`/undefined means not played yet. */
   score?: { home: number; away: number } | null;
+  /** Live status (set by the scores feed). Falls back to a time-based guess. */
+  status?: MatchStatus;
+  /** Live minute label while in progress, e.g. "67'" or "HT". */
+  minute?: string;
 }
 
 export type MatchStatus = "upcoming" | "live" | "finished";

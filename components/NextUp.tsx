@@ -6,8 +6,8 @@ import {
   formatLocalDate,
   formatLocalTime,
   formatRelative,
-  getMatchStatus,
   msUntil,
+  statusOf,
 } from "@/lib/time";
 import { stageLabel } from "@/lib/i18n";
 import { TeamFlag } from "./TeamFlag";
@@ -29,8 +29,9 @@ function TeamSide({ team, placeholder }: { team: string; placeholder?: boolean }
 
 function FeaturedMatch({ match, now }: { match: Match; now: number }) {
   const { t, locale } = useI18n();
-  const status = getMatchStatus(match.kickoff, now);
+  const status = statusOf(match, now);
   const label = stageLabel(t, match.stage, match.group);
+  const hasScore = match.score != null && status !== "upcoming";
 
   return (
     <article className="glass card-hover relative overflow-hidden rounded-2xl p-5">
@@ -46,19 +47,29 @@ function FeaturedMatch({ match, now }: { match: Match; now: number }) {
             {t("upnext.in")} {formatRelative(msUntil(match.kickoff, now))}
           </span>
         ) : (
-          <StatusBadge status={status} />
+          <StatusBadge status={status} minute={match.minute} />
         )}
       </div>
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
         <TeamSide team={match.home} placeholder={match.homePlaceholder} />
         <div className="flex flex-col items-center px-0.5">
-          <div className="whitespace-nowrap font-display text-xl font-bold leading-none text-ink sm:text-2xl">
-            {formatLocalTime(match.kickoff, locale)}
-          </div>
-          <div className="mt-1 text-[10px] uppercase tracking-wider text-muted">
-            {formatLocalDate(match.kickoff, locale)}
-          </div>
+          {hasScore ? (
+            <div className="whitespace-nowrap font-display text-2xl font-bold leading-none text-ink">
+              {match.score!.home}
+              <span className="mx-1.5 text-muted">-</span>
+              {match.score!.away}
+            </div>
+          ) : (
+            <>
+              <div className="whitespace-nowrap font-display text-xl font-bold leading-none text-ink sm:text-2xl">
+                {formatLocalTime(match.kickoff, locale)}
+              </div>
+              <div className="mt-1 text-[10px] uppercase tracking-wider text-muted">
+                {formatLocalDate(match.kickoff, locale)}
+              </div>
+            </>
+          )}
         </div>
         <TeamSide team={match.away} placeholder={match.awayPlaceholder} />
       </div>
@@ -84,7 +95,7 @@ export function NextUp() {
   if (error) return null;
 
   const upcoming = matches
-    .filter((m) => getMatchStatus(m.kickoff, now) !== "finished")
+    .filter((m) => statusOf(m, now) !== "finished")
     .sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff))
     .slice(0, 2);
 

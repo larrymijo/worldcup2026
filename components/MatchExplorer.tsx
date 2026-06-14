@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Match } from "@/lib/types";
 import { TEAMS } from "@/lib/teams";
-import { formatLocalDateLong, getMatchStatus, groupByLocalDate } from "@/lib/time";
+import { formatLocalDateLong, groupByLocalDate, statusOf } from "@/lib/time";
 import { MatchCard } from "./MatchCard";
 import { useMatches, useNow } from "./useMatches";
 import { useI18n } from "./I18nProvider";
@@ -20,7 +20,7 @@ function searchText(m: Match): string {
 
 export function MatchExplorer() {
   const { t, locale } = useI18n();
-  const { matches, loading, error } = useMatches();
+  const { matches, loading, error, source } = useMatches();
   const now = useNow();
 
   const [query, setQuery] = useState("");
@@ -35,7 +35,7 @@ export function MatchExplorer() {
       if (group !== "all" && m.group !== group) return false;
       if (stage === "group" && m.stage !== "Group") return false;
       if (stage === "knockout" && m.stage === "Group") return false;
-      if (onlyUpcoming && getMatchStatus(m.kickoff, now) === "finished") return false;
+      if (onlyUpcoming && statusOf(m, now) === "finished") return false;
       return true;
     });
   }, [matches, query, group, stage, onlyUpcoming, now]);
@@ -114,14 +114,30 @@ export function MatchExplorer() {
           </div>
         </div>
 
-        <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted">
-          <span>
-            {loading
-              ? t("filters.loading")
-              : t(filtered.length === 1 ? "filters.countOne" : "filters.countOther", {
-                  n: filtered.length,
-                })}
-          </span>
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-y-1 text-[11px] text-muted">
+          <div className="flex items-center gap-2">
+            <span>
+              {loading
+                ? t("filters.loading")
+                : t(filtered.length === 1 ? "filters.countOne" : "filters.countOther", {
+                    n: filtered.length,
+                  })}
+            </span>
+            {source === "live-feed" && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-pitch/30 bg-pitch/10 px-2 py-0.5 font-semibold text-pitch">
+                <span className="live-dot h-1.5 w-1.5 rounded-full bg-pitch" />
+                {t("scores.live")}
+              </span>
+            )}
+            {source === "simulated" && (
+              <span
+                title={t("scores.demoHint")}
+                className="inline-flex items-center gap-1 rounded-full border border-gold/40 bg-gold/10 px-2 py-0.5 font-semibold text-gold"
+              >
+                {t("scores.demo")}
+              </span>
+            )}
+          </div>
           <span className="inline-flex items-center gap-1.5">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none">
               <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />

@@ -16,8 +16,11 @@ tracker with a live countdown to the next match.
   through every knockout round to crown a champion. Picks save in the browser.
 - **Local time everywhere** — times are stored in UTC and converted client-side
   with the `Intl` API, so they're correct for every visitor automatically.
-- **Live status** — matches show `Upcoming` / `Live` / `Full time` based on the
-  current time.
+- **Live scores (real)** — `/api/matches` pulls real World Cup scores from
+  ESPN's public feed (keyless, no signup), enriching every fixture with the
+  score, status (`Upcoming` / `Live` / `Full time`) and live minute. The client
+  polls every ~25s so scorelines and the minute update on their own, and a
+  badge shows whether scores are **Live** or **Demo**.
 - **Bilingual (Español / English)** — the UI auto-detects the visitor's browser
   language; **Spanish is the default** for non-English browsers. A manual
   **ES / EN** toggle lives in the navbar, the choice is remembered, and dates
@@ -75,12 +78,22 @@ lib/
   types.ts
 ```
 
-### Updating the data / going live
+### Live scores configuration
 
-`app/api/matches/route.ts` currently returns the curated dataset in
-`lib/matches.ts`. To wire in a live data feed (scores, knockout teams), replace
-the body of `GET` with a `fetch` to your sports-data provider and map it onto the
-`Match` type — the rest of the app keeps working unchanged.
+`app/api/matches/route.ts` merges live scores onto the schedule on every request.
+The source is controlled by the optional `SCORES_MODE` env var:
+
+- **(default, unset) — real scores from ESPN.** Fetches the FIFA World Cup
+  scoreboard from ESPN's public API (`site.api.espn.com`, keyless, no signup),
+  matches each game to the schedule by team pairing, and shows the real score,
+  status and live minute. Falls back to the built-in engine if the feed errors.
+- **`SCORES_MODE=simulate`** — built-in deterministic, time-based engine (demo).
+- **`SCORES_MODE=off`** — schedule only, no scores.
+
+The feed response is cached ~30s, and the matches page badge shows **Live** vs
+**Demo** so simulated scores are never mistaken for real ones. To use a
+different provider, implement a fetch in `lib/live.ts` returning the same
+`{ status, score, minute }` shape — the rest of the app is unchanged.
 
 ## Sponsor
 
