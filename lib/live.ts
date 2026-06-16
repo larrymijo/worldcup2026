@@ -101,6 +101,8 @@ interface FeedEntry {
   status: "live" | "finished" | "upcoming";
   score?: { home: number; away: number };
   minute?: string;
+  /** Real kick-off time (UTC ISO) from the feed — authoritative over our schedule. */
+  kickoff?: string;
   homeCrest?: string;
   awayCrest?: string;
   detail?: MatchDetail;
@@ -221,6 +223,7 @@ export async function fetchEspnScores(): Promise<Map<string, FeedEntry>> {
 
       const base: FeedEntry = {
         status: "upcoming",
+        kickoff: ev.date ? new Date(ev.date).toISOString() : undefined,
         homeCrest: home.team?.logo,
         awayCrest: away.team?.logo,
         detail: Object.keys(detail).length ? detail : undefined,
@@ -258,6 +261,7 @@ export function mergeExternal(matches: Match[], feed: Map<string, FeedEntry>): M
       ...m,
       status: hit.status,
       minute: hit.minute,
+      kickoff: hit.kickoff ?? m.kickoff,
       homeCrest: hit.homeCrest,
       awayCrest: hit.awayCrest,
       detail: hit.detail,

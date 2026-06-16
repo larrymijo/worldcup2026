@@ -278,22 +278,22 @@ function Spinner({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex select-none flex-col items-center">
       <button
         type="button"
         disabled={disabled}
         onClick={onUp}
-        className="grid h-4 w-6 place-items-center rounded text-muted transition hover:text-pitch disabled:opacity-25"
+        className="grid h-6 w-9 touch-manipulation place-items-center rounded text-muted transition hover:text-pitch active:bg-white/5 disabled:opacity-25"
         aria-label="+1"
       >
         <ChevUp />
       </button>
-      <span className="w-6 text-center font-display text-lg font-bold tabular-nums text-ink">{value ?? "–"}</span>
+      <span className="w-7 text-center font-display text-lg font-bold tabular-nums text-ink">{value ?? "–"}</span>
       <button
         type="button"
         disabled={disabled}
         onClick={onDown}
-        className="grid h-4 w-6 place-items-center rounded text-muted transition hover:text-pitch disabled:opacity-25"
+        className="grid h-6 w-9 touch-manipulation place-items-center rounded text-muted transition hover:text-pitch active:bg-white/5 disabled:opacity-25"
         aria-label="-1"
       >
         <ChevDown />
