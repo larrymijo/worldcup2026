@@ -120,11 +120,13 @@ export function NextUp() {
   const now = useNow();
 
   if (error) return null;
-
-  const upcoming = matches
-    .filter((m) => statusOf(m, now) !== "finished")
-    .sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff))
-    .slice(0, 2);
+ 
+   // Get next 2 upcoming matches across ALL stages (group + knockout)
+   // Sort by kickoff time to ensure we get the actual next matches
+   const upcoming = matches
+     .filter((m) => statusOf(m, now) !== "finished")
+     .sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff))
+     .slice(0, 2);
 
   if (!loading && upcoming.length === 0) return null;
 
