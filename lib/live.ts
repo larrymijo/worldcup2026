@@ -73,10 +73,12 @@ export function simulateLive(matches: Match[], nowMs: number): Match[] {
 
 /* ------------------------------ ESPN feed ------------------------------ */
 
-const ESPN =
-  "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
-// Split the tournament so each request stays well under ESPN's event cap.
-const RANGES = ["20260611-20260628", "20260629-20260720"];
+const ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
+   // Split the tournament so each request stays well under ESPN's event cap.
+   // NOTE: Date ranges must be inclusive on both ends to capture all matches.
+   // First range: Group stage (Jun 11-28) + early Round of 32 matches (Jun 28-29)
+   // Second range: Rest of Round of 32 through Final (Jun 29-Jul 19)
+   const RANGES = ["20260611-20260629", "20260629-20260719"];
 
 // Normalise team names so ESPN's names line up with our keys.
 const ALIASES: Record<string, string> = {
