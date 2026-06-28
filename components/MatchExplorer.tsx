@@ -65,7 +65,9 @@ export function MatchExplorer() {
       if (q && !searchText(m).includes(q)) return false;
       if (team !== "all" && m.home !== team && m.away !== team) return false;
       if (group !== "all" && m.group !== group) return false;
+      // Group stage: only matches with stage "Group"
       if (stage === "group" && m.stage !== "Group") return false;
+       // Knockout stage: all matches that are NOT group stage (Round of 32, 16, QF, SF, etc.)
       if (stage === "knockout" && m.stage === "Group") return false;
       if (onlyUpcoming && statusOf(m, now) === "finished") return false;
       return true;
